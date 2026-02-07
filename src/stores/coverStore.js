@@ -18,16 +18,16 @@ export const useCoverStore = defineStore('cover', () => {
   const customCSS = ref('')
 
   // 字体大小
-  const fontSize = ref(48)
+  const fontSize = ref(22)
 
   // 字体颜色
   const textColor = ref('#ffffff')
 
   // 字体粗细
-  const fontWeight = ref('bold')
+  const fontWeight = ref('normal')
 
   // 字体阴影
-  const textShadow = ref('2px 2px 4px rgba(0,0,0,0.8)')
+  const textShadow = ref('none')
 
   // 裁剪对话框显示状态
   const showCropper = ref(false)
@@ -108,10 +108,10 @@ export const useCoverStore = defineStore('cover', () => {
     resetImages()
     text.value = ''
     customCSS.value = ''
-    fontSize.value = 48
+    fontSize.value = 22
     textColor.value = '#ffffff'
-    fontWeight.value = 'bold'
-    textShadow.value = '2px 2px 4px rgba(0,0,0,0.8)'
+    fontWeight.value = 'normal'
+    textShadow.value = 'none'
   }
 
   return {

@@ -137,14 +137,14 @@ const defaultStyles = [
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: #303133;
+  color: #e2e8f0;
 }
 
 .default-styles {
-  background: #f5f7fa;
+  background: #1a202c;
   padding: 16px;
   border-radius: 8px;
-  border: 1px solid #e4e7ed;
+  border: 1px solid #2d3748;
 }
 
 .style-list {
@@ -159,15 +159,16 @@ const defaultStyles = [
   gap: 8px;
   font-size: 13px;
   font-family: 'Consolas', 'Monaco', monospace;
+  color: #cbd5e0;
 }
 
 .style-property {
-  color: #409eff;
+  color: #9f7aea;
   min-width: 120px;
 }
 
 .style-value {
-  color: #67c23a;
+  color: #48bb78;
 }
 
 .preset-buttons {
@@ -178,8 +179,9 @@ const defaultStyles = [
 
 .preset-btn {
   padding: 8px 14px;
-  border: 1px solid #dcdfe6;
-  background: white;
+  border: 1px solid #4a5568;
+  background: #2d3748;
+  color: #e2e8f0;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -187,39 +189,40 @@ const defaultStyles = [
 }
 
 .preset-btn:hover {
-  border-color: #409eff;
-  color: #409eff;
+  border-color: #9f7aea;
+  color: #9f7aea;
 }
 
 .preset-btn.active {
-  background: #409eff;
-  border-color: #409eff;
+  background: #9f7aea;
+  border-color: #9f7aea;
   color: white;
 }
 
 .css-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #4a5568;
   border-radius: 6px;
   font-size: 13px;
   font-family: 'Consolas', 'Monaco', monospace;
   resize: vertical;
   transition: border-color 0.3s;
-  background: #fafafa;
+  background: #1a202c;
+  color: #e2e8f0;
   line-height: 1.6;
 }
 
 .css-input:focus {
   outline: none;
-  border-color: #409eff;
-  background: white;
+  border-color: #9f7aea;
+  background: #2d3748;
 }
 
 .hint {
   margin: 0;
   font-size: 12px;
-  color: #909399;
+  color: #a0aec0;
   line-height: 1.6;
 }
 
@@ -234,19 +237,20 @@ const defaultStyles = [
   flex-direction: column;
   gap: 4px;
   padding: 8px 10px;
-  background: #f5f7fa;
+  background: #1a202c;
   border-radius: 6px;
   font-size: 12px;
+  border: 1px solid #2d3748;
 }
 
 .reference-item code {
   font-family: 'Consolas', 'Monaco', monospace;
-  color: #409eff;
+  color: #9f7aea;
   font-size: 11px;
   word-break: break-all;
 }
 
 .reference-item span {
-  color: #606266;
+  color: #cbd5e0;
 }
 </style>

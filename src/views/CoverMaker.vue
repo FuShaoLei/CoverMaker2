@@ -46,6 +46,82 @@ const resetAll = () => {
   }
 }
 
+// 导出单个尺寸的封面
+const exportSingleCover = async (width, height) => {
+  // 创建临时导出容器
+  const container = document.createElement('div')
+  container.style.position = 'absolute'
+  container.style.left = '-9999px'
+  container.style.width = width + 'px'
+  container.style.height = height + 'px'
+  container.style.background = '#000'
+  container.style.overflow = 'hidden'
+
+  // 创建图片
+  const img = document.createElement('img')
+  img.src = coverStore.currentImage
+  img.style.width = '100%'
+  img.style.height = '100%'
+  img.style.objectFit = 'cover'
+  img.style.position = 'absolute'
+  img.style.top = '0'
+  img.style.left = '0'
+
+  // 创建文字容器
+  if (coverStore.text) {
+    const textDiv = document.createElement('div')
+    const isHTML = /<[^>]*>/.test(coverStore.text)
+    if (isHTML) {
+      textDiv.innerHTML = coverStore.text
+    } else {
+      textDiv.innerText = coverStore.text
+    }
+    textDiv.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 90%;
+      max-width: 90%;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      ${coverStore.getAppliedStyles()}
+    `
+    container.appendChild(textDiv)
+  }
+
+  container.appendChild(img)
+  document.body.appendChild(container)
+
+  // 等待图片加载
+  await new Promise((resolve) => {
+    if (img.complete) {
+      resolve()
+    } else {
+      img.onload = resolve
+    }
+  })
+
+  // 使用 html2canvas 导出
+  const canvas = await html2canvas(container, {
+    width: width,
+    height: height,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+  })
+
+  // 清理临时容器
+  document.body.removeChild(container)
+
+  return canvas
+}
+
 const exportCover = async () => {
   if (!coverStore.currentImage) {
     alert('请先上传图片')
@@ -55,76 +131,24 @@ const exportCover = async () => {
   isExporting.value = true
 
   try {
-    // 创建临时导出容器
-    const container = document.createElement('div')
-    container.style.position = 'absolute'
-    container.style.left = '-9999px'
-    container.style.width = '1280px'
-    container.style.height = '720px'
-    container.style.background = '#000'
-    container.style.overflow = 'hidden'
-
-    // 创建图片
-    const img = document.createElement('img')
-    img.src = coverStore.currentImage
-    img.style.width = '100%'
-    img.style.height = '100%'
-    img.style.objectFit = 'cover'
-    img.style.position = 'absolute'
-    img.style.top = '0'
-    img.style.left = '0'
-
-    // 创建文字容器
-    if (coverStore.text) {
-      const textDiv = document.createElement('div')
-      textDiv.innerHTML = coverStore.text
-      textDiv.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        width: 90%;
-        max-width: 90%;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-        font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        line-height: 1.4;
-        ${coverStore.getAppliedStyles()}
-      `
-      container.appendChild(textDiv)
-    }
-
-    container.appendChild(img)
-    document.body.appendChild(container)
-
-    // 等待图片加载
-    await new Promise((resolve) => {
-      if (img.complete) {
-        resolve()
-      } else {
-        img.onload = resolve
-      }
-    })
-
-    // 使用 html2canvas 导出
-    const canvas = await html2canvas(container, {
-      width: 1280,
-      height: 720,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-    })
-
-    // 清理临时容器
-    document.body.removeChild(container)
-
-    // 转换为 blob 并下载
-    canvas.toBlob((blob) => {
+    // 导出横版 16:9 (1280x720)
+    const canvas169 = await exportSingleCover(1280, 720)
+    canvas169.toBlob((blob) => {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.download = `cover-${Date.now()}.png`
+      link.download = `cover-16x9-${Date.now()}.png`
+      link.href = url
+      link.click()
+      URL.revokeObjectURL(url)
+    }, 'image/png')
+
+    // 短暂延迟后导出竖版 9:16 (720x1280)
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const canvas916 = await exportSingleCover(720, 1280)
+    canvas916.toBlob((blob) => {
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.download = `cover-9x16-${Date.now()}.png`
       link.href = url
       link.click()
       URL.revokeObjectURL(url)
@@ -141,8 +165,28 @@ const exportCover = async () => {
 <template>
   <div class="cover-maker">
     <header class="app-header">
-      <h1>视频封面生成器</h1>
-      <p class="subtitle">轻松创建适配各平台的视频封面</p>
+      <div class="header-left">
+        <h1>视频封面生成器</h1>
+        <p class="subtitle">轻松创建适配各平台的视频封面</p>
+      </div>
+      <button class="header-export-btn" :disabled="isExporting" @click="exportCover">
+        <svg v-if="!isExporting" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <svg v-else class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="2" x2="12" y2="6"></line>
+          <line x1="12" y1="18" x2="12" y2="22"></line>
+          <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+          <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+          <line x1="2" y1="12" x2="6" y2="12"></line>
+          <line x1="18" y1="12" x2="22" y2="12"></line>
+          <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+          <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+        </svg>
+        {{ isExporting ? '导出中...' : '导出封面' }}
+      </button>
     </header>
 
     <div class="main-content">
@@ -222,24 +266,6 @@ const exportCover = async () => {
 
         <!-- 操作按钮 -->
         <div class="panel-section action-buttons">
-          <button class="btn btn-export" :disabled="isExporting" @click="exportCover">
-            <svg v-if="!isExporting" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <svg v-else class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="2" x2="12" y2="6"></line>
-              <line x1="12" y1="18" x2="12" y2="22"></line>
-              <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
-              <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
-              <line x1="2" y1="12" x2="6" y2="12"></line>
-              <line x1="18" y1="12" x2="22" y2="12"></line>
-              <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
-              <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
-            </svg>
-            {{ isExporting ? '导出中...' : '导出封面 (PNG)' }}
-          </button>
           <button class="btn btn-reset" @click="resetAll">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -270,14 +296,22 @@ const exportCover = async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f5f7fa;
+  background: #1a1a2e;
 }
 
 .app-header {
   padding: 20px 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a00e0 0%, #8e2de2 100%);
   color: white;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.header-left {
+  flex: 1;
 }
 
 .app-header h1 {
@@ -290,6 +324,39 @@ const exportCover = async () => {
   margin: 6px 0 0;
   font-size: 14px;
   opacity: 0.9;
+}
+
+.header-export-btn {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.header-export-btn:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.5);
+}
+
+.header-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.header-export-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .main-content {
@@ -315,26 +382,31 @@ const exportCover = async () => {
 }
 
 .editor-panel::-webkit-scrollbar-track {
-  background: transparent;
+  background: #16213e;
 }
 
 .editor-panel::-webkit-scrollbar-thumb {
-  background: #dcdfe6;
+  background: #4a5568;
   border-radius: 3px;
 }
 
+.editor-panel::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
 .panel-section {
-  background: white;
+  background: #16213e;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2d3748;
 }
 
 .section-title {
   margin: 0 0 16px;
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: #e2e8f0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -343,7 +415,7 @@ const exportCover = async () => {
 .section-title svg {
   width: 20px;
   height: 20px;
-  color: #409eff;
+  color: #9f7aea;
 }
 
 .upload-area {
@@ -361,8 +433,8 @@ const exportCover = async () => {
   aspect-ratio: 16 / 9;
   border-radius: 8px;
   overflow: hidden;
-  background: #f5f5f5;
-  border: 2px solid #e4e7ed;
+  background: #0f3460;
+  border: 2px solid #2d3748;
 }
 
 .image-preview-small img {
@@ -401,34 +473,36 @@ const exportCover = async () => {
 }
 
 .btn-primary {
-  background: #409eff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #66b1ff;
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .btn-secondary {
-  background: #f5f7fa;
-  color: #606266;
-  border: 1px solid #dcdfe6;
+  background: #2d3748;
+  color: #e2e8f0;
+  border: 1px solid #4a5568;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #e4e7ed;
-  border-color: #c0c4cc;
+  background: #4a5568;
+  border-color: #718096;
 }
 
 .btn-danger {
-  background: #fef0f0;
-  color: #f56c6c;
-  border: 1px solid #fbc4c4;
+  background: #742a2a;
+  color: #fc8181;
+  border: 1px solid #9b2c2c;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #fde2e2;
-  border-color: #f89898;
+  background: #9b2c2c;
+  border-color: #c53030;
 }
 
 .action-buttons {
@@ -437,33 +511,17 @@ const exportCover = async () => {
   gap: 10px;
 }
 
-.btn-export {
-  width: 100%;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 15px;
-  font-weight: 600;
-  justify-content: center;
-}
-
-.btn-export:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
 .btn-reset {
   width: 100%;
   padding: 12px 20px;
-  background: #f5f7fa;
-  color: #909399;
+  background: #2d3748;
+  color: #a0aec0;
   justify-content: center;
 }
 
 .btn-reset:hover {
-  background: #e4e7ed;
-  color: #606266;
+  background: #4a5568;
+  color: #e2e8f0;
 }
 
 .preview-area {
@@ -486,6 +544,16 @@ const exportCover = async () => {
 
 /* 响应式设计 */
 @media (max-width: 1024px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .main-content {
     flex-direction: column;
     overflow-y: auto;

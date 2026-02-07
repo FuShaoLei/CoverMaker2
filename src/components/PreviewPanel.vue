@@ -13,14 +13,13 @@ const getPreviewContainerStyle = (aspectRatio) => {
   const styles = {
     '16:9': { width: '100%', aspectRatio: '16 / 9' },
     '9:16': { width: '180px', aspectRatio: '9 / 16' },
-    '1:1': { width: '180px', aspectRatio: '1 / 1' },
   }
   return styles[aspectRatio] || styles['16:9']
 }
 
-// 安全的 HTML 渲染
-const safeHTML = computed(() => {
-  return text.value
+// 检测是否包含 HTML 标签
+const isHTML = computed(() => {
+  return /<[^>]*>/.test(text.value)
 })
 </script>
 
@@ -54,7 +53,8 @@ const safeHTML = computed(() => {
           <div
             v-if="text"
             class="cover-text"
-            v-html="safeHTML"
+            v-html="isHTML ? text : undefined"
+            v-text="isHTML ? undefined : text"
             :style="getAppliedStyles"
           ></div>
         </div>
@@ -77,36 +77,14 @@ const safeHTML = computed(() => {
             <div
               v-if="text"
               class="cover-text"
-              v-html="safeHTML"
+              v-html="isHTML ? text : undefined"
+              v-text="isHTML ? undefined : text"
               :style="getAppliedStyles"
             ></div>
           </div>
         </div>
       </div>
 
-      <!-- 方形 1:1 预览 -->
-      <div class="preview-section">
-        <h3 class="preview-title">
-          <span class="badge square">1:1</span>
-          Instagram 方形
-        </h3>
-        <div class="preview-group">
-          <div
-            v-for="i in 3"
-            :key="'square-' + i"
-            class="preview-container small-preview"
-            :style="getPreviewContainerStyle('1:1')"
-          >
-            <img v-if="currentImage" :src="currentImage" class="preview-image" alt="封面预览" />
-            <div
-              v-if="text"
-              class="cover-text"
-              v-html="safeHTML"
-              :style="getAppliedStyles"
-            ></div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -116,16 +94,17 @@ const safeHTML = computed(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: white;
+  background: #16213e;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2d3748;
 }
 
 .panel-header {
   padding: 20px 24px;
-  border-bottom: 1px solid #eee;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid #2d3748;
+  background: linear-gradient(135deg, #4a00e0 0%, #8e2de2 100%);
   color: white;
 }
 
@@ -160,7 +139,7 @@ const safeHTML = computed(() => {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #303133;
+  color: #e2e8f0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -175,21 +154,18 @@ const safeHTML = computed(() => {
 }
 
 .badge.horizontal {
-  background: #409eff;
+  background: #667eea;
 }
 
 .badge.vertical {
-  background: #67c23a;
+  background: #48bb78;
 }
 
-.badge.square {
-  background: #e6a23c;
-}
 
 .preview-container {
   position: relative;
   overflow: hidden;
-  background: #f5f5f5;
+  background: #0f3460;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -198,11 +174,11 @@ const safeHTML = computed(() => {
 
 .preview-container.main-preview {
   min-height: 200px;
-  border: 2px solid #e4e7ed;
+  border: 2px solid #2d3748;
 }
 
 .preview-container.small-preview {
-  border: 1px solid #e4e7ed;
+  border: 1px solid #2d3748;
   height: 240px;
 }
 
@@ -220,7 +196,7 @@ const safeHTML = computed(() => {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  color: #c0c4cc;
+  color: #718096;
 }
 
 .preview-placeholder svg {
@@ -253,6 +229,7 @@ const safeHTML = computed(() => {
   line-height: 1.4;
   pointer-events: none;
   z-index: 10;
+  white-space: pre-wrap;
 }
 
 /* 滚动条样式 */
@@ -261,15 +238,15 @@ const safeHTML = computed(() => {
 }
 
 .preview-content::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: #16213e;
 }
 
 .preview-content::-webkit-scrollbar-thumb {
-  background: #dcdfe6;
+  background: #4a5568;
   border-radius: 3px;
 }
 
 .preview-content::-webkit-scrollbar-thumb:hover {
-  background: #c0c4cc;
+  background: #718096;
 }
 </style>

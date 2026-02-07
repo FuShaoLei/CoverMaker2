@@ -79,23 +79,23 @@ defineExpose({
 
 <style scoped>
 .uploader {
-  border: 2px dashed #ddd;
+  border: 2px dashed #4a5568;
   border-radius: 8px;
   padding: 40px 20px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: #1a202c;
 }
 
 .uploader:hover {
-  border-color: #409eff;
-  background: #f0f7ff;
+  border-color: #9f7aea;
+  background: #2d3748;
 }
 
 .uploader.is-dragging {
-  border-color: #409eff;
-  background: #e6f4ff;
+  border-color: #9f7aea;
+  background: #44337a;
   transform: scale(1.02);
 }
 
@@ -113,19 +113,19 @@ defineExpose({
 .upload-icon {
   width: 48px;
   height: 48px;
-  color: #909399;
+  color: #a0aec0;
 }
 
 .upload-text {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  color: #303133;
+  color: #e2e8f0;
 }
 
 .upload-hint {
   margin: 0;
   font-size: 13px;
-  color: #909399;
+  color: #a0aec0;
 }
 </style>

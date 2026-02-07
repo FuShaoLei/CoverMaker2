@@ -47,7 +47,7 @@ const presetColors = [
 
 const weightOptions = [
   { label: '细体', value: '300' },
-  { label: '常规', value: '400' },
+  { label: '常规', value: 'normal' },
   { label: '中等', value: '500' },
   { label: '粗体', value: 'bold' },
   { label: '特粗', value: '800' },
@@ -201,7 +201,7 @@ const insertBreak = () => {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: #303133;
+  color: #e2e8f0;
 }
 
 .html-toolbar {
@@ -212,8 +212,9 @@ const insertBreak = () => {
 
 .tool-btn {
   padding: 6px 12px;
-  border: 1px solid #dcdfe6;
-  background: white;
+  border: 1px solid #4a5568;
+  background: #2d3748;
+  color: #e2e8f0;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
@@ -225,8 +226,8 @@ const insertBreak = () => {
 }
 
 .tool-btn:hover {
-  border-color: #409eff;
-  color: #409eff;
+  border-color: #9f7aea;
+  color: #9f7aea;
 }
 
 .tool-btn svg {
@@ -238,28 +239,30 @@ const insertBreak = () => {
 .css-input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #4a5568;
   border-radius: 6px;
   font-size: 14px;
   font-family: 'Consolas', 'Monaco', monospace;
   resize: vertical;
   transition: border-color 0.3s;
+  background: #1a202c;
+  color: #e2e8f0;
 }
 
 .text-input:focus,
 .css-input:focus {
   outline: none;
-  border-color: #409eff;
+  border-color: #9f7aea;
 }
 
 .css-input {
-  background: #f5f7fa;
+  background: #1a202c;
 }
 
 .hint {
   margin: 0;
   font-size: 12px;
-  color: #909399;
+  color: #a0aec0;
   line-height: 1.5;
 }
 
@@ -272,7 +275,7 @@ const insertBreak = () => {
 .style-label {
   font-size: 13px;
   font-weight: 500;
-  color: #606266;
+  color: #cbd5e0;
 }
 
 .style-control {
@@ -290,24 +293,27 @@ const insertBreak = () => {
 .number-input {
   width: 70px;
   padding: 6px 8px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #4a5568;
   border-radius: 4px;
   font-size: 14px;
   text-align: center;
+  background: #1a202c;
+  color: #e2e8f0;
 }
 
 .unit {
   font-size: 13px;
-  color: #909399;
+  color: #a0aec0;
 }
 
 .color-input {
   width: 40px;
   height: 32px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #4a5568;
   border-radius: 4px;
   cursor: pointer;
   padding: 2px;
+  background: #1a202c;
 }
 
 .preset-colors {
@@ -329,30 +335,33 @@ const insertBreak = () => {
 }
 
 .color-preset.active {
-  border-color: #409eff;
+  border-color: #9f7aea;
 }
 
 .text-input-small {
   width: 100px;
   padding: 6px 8px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #4a5568;
   border-radius: 4px;
   font-size: 13px;
   font-family: monospace;
+  background: #1a202c;
+  color: #e2e8f0;
 }
 
 .select-input {
   padding: 7px 12px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #4a5568;
   border-radius: 4px;
   font-size: 14px;
-  background: white;
+  background: #2d3748;
+  color: #e2e8f0;
   cursor: pointer;
   min-width: 150px;
 }
 
 .select-input:focus {
   outline: none;
-  border-color: #409eff;
+  border-color: #9f7aea;
 }
 </style>
