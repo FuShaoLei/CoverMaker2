@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "cropperjs": "^2.1.0",
+    "html2canvas": "^1.4.1",
     "pinia": "^3.0.4",
     "vue": "^3.5.27",
+    "vue-cropperjs": "^5.0.0",
     "vue-router": "^5.0.1"
   },
   "devDependencies": {
