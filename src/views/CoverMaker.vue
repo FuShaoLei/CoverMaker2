@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import html2canvas from 'html2canvas'
+import JSZip from 'jszip'
 import ImageUploader from '@/components/ImageUploader.vue'
 import ImageCropper from '@/components/ImageCropper.vue'
 import TextEditor from '@/components/TextEditor.vue'
@@ -49,30 +50,75 @@ const resetAll = () => {
 
 // 导出单个尺寸的封面
 const exportSingleCover = async (width, height) => {
-  // 创建临时导出容器
-  const container = document.createElement('div')
-  container.style.position = 'absolute'
-  container.style.left = '-9999px'
-  container.style.width = width + 'px'
-  container.style.height = height + 'px'
-  container.style.background = '#000'
-  container.style.overflow = 'hidden'
+  // 等待字体加载 - 同时加载常规和粗体
+  await document.fonts.load('22px CustomFont')
+  await document.fonts.load('bold 22px CustomFont')
+  await document.fonts.load('normal 22px CustomFont')
+  await document.fonts.ready
 
-  // 创建图片
-  const img = document.createElement('img')
+  // 创建最终 canvas
+  const finalCanvas = document.createElement('canvas')
+  finalCanvas.width = width
+  finalCanvas.height = height
+  const finalCtx = finalCanvas.getContext('2d')
+
+  // 加载图片
+  const img = new Image()
+  img.crossOrigin = 'anonymous'
   img.src = coverStore.currentImage
-  img.style.width = '100%'
-  img.style.height = '100%'
-  img.style.objectFit = 'cover'
-  img.style.position = 'absolute'
-  img.style.top = '0'
-  img.style.left = '0'
 
-  // 创建文字容器
+  await new Promise((resolve, reject) => {
+    img.onload = resolve
+    img.onerror = reject
+  })
+
+  // 计算图片缩放以填充容器（类似 object-fit: cover）
+  const imgRatio = img.width / img.height
+  const containerRatio = width / height
+
+  let drawWidth, drawHeight, offsetX, offsetY
+
+  if (imgRatio > containerRatio) {
+    // 图片更宽，按高度缩放
+    drawHeight = height
+    drawWidth = height * imgRatio
+    offsetX = (width - drawWidth) / 2
+    offsetY = 0
+  } else {
+    // 图片更高，按宽度缩放
+    drawWidth = width
+    drawHeight = width / imgRatio
+    offsetX = 0
+    offsetY = (height - drawHeight) / 2
+  }
+
+  // 绘制背景（黑色填充）
+  finalCtx.fillStyle = '#000'
+  finalCtx.fillRect(0, 0, width, height)
+
+  // 绘制图片
+  finalCtx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+
+  // 如果有文字，渲染文字并合并
   if (coverStore.text) {
+    // 创建临时 DOM 容器来渲染文字
+    const textContainer = document.createElement('div')
+    textContainer.style.position = 'fixed'
+    textContainer.style.left = '-9999px'
+    textContainer.style.top = '0'
+    textContainer.style.width = width + 'px'
+    textContainer.style.height = height + 'px'
+    textContainer.style.background = 'transparent'
+    textContainer.style.overflow = 'hidden'
+
     const textDiv = document.createElement('div')
-    // 使用 Markdown 渲染
     textDiv.innerHTML = renderMarkdown(coverStore.text)
+    textDiv.className = 'cover-text export-text'
+
+    // 计算字体大小（基于实际容器宽度，保持比例一致）
+    const scaledFontSize = Math.round(coverStore.fontSize * (width / 1920))
+
+    const styles = coverStore.getAppliedStyles()
     textDiv.style.cssText = `
       position: absolute;
       top: 50%;
@@ -83,49 +129,69 @@ const exportSingleCover = async (width, height) => {
       max-width: 90%;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      hyphens: auto;
       font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-      line-height: 1.4;
-      ${coverStore.getAppliedStyles()}
+      pointer-events: none;
+      font-size: ${scaledFontSize}px;
+      color: ${coverStore.textColor};
+      font-weight: ${coverStore.fontWeight};
+      text-shadow: ${coverStore.textShadow};
+      line-height: ${coverStore.lineHeight};
+      letter-spacing: ${coverStore.letterSpacing};
+      ${coverStore.customCSS}
     `
-    // 添加 p 标签样式
-    const style = document.createElement('style')
-    style.textContent = `
+    textContainer.appendChild(textDiv)
+
+    // 添加样式
+    const styleEl = document.createElement('style')
+    styleEl.textContent = `
+      @font-face {
+        font-family: 'CustomFont';
+        src: url('/fonts/AmericanTypewriter.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'CustomFont';
+        src: url('/fonts/AmericanTypewriterBold.ttf') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+      }
+      .export-text, .export-text *, .export-text p, .export-text mark, .export-text strong, .export-text em, .export-text code {
+        font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+      }
       .export-text p { margin: 0; }
       .export-text mark { background: yellow; color: black; padding: 0 2px; }
-      .export-text strong { font-weight: bold; }
-      .export-text em { font-style: italic; }
+      .export-text strong { font-weight: bold; font-family: 'CustomFont', sans-serif !important; }
+      .export-text em { font-style: italic; font-family: 'CustomFont', sans-serif !important; }
     `
-    textDiv.className = 'export-text'
-    container.appendChild(style)
-    container.appendChild(textDiv)
+    document.head.appendChild(styleEl)
+    document.body.appendChild(textContainer)
+
+    // 等待字体渲染
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // 使用 html2canvas 渲染文字
+    const textCanvas = await html2canvas(textContainer, {
+      width: width,
+      height: height,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+      scale: 1,
+      logging: false,
+    })
+
+    // 将文字绘制到最终 canvas
+    finalCtx.drawImage(textCanvas, 0, 0)
+
+    // 清理
+    document.body.removeChild(textContainer)
+    document.head.removeChild(styleEl)
   }
 
-  container.appendChild(img)
-  document.body.appendChild(container)
-
-  // 等待图片加载
-  await new Promise((resolve) => {
-    if (img.complete) {
-      resolve()
-    } else {
-      img.onload = resolve
-    }
-  })
-
-  // 使用 html2canvas 导出
-  const canvas = await html2canvas(container, {
-    width: width,
-    height: height,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: null,
-  })
-
-  // 清理临时容器
-  document.body.removeChild(container)
-
-  return canvas
+  return finalCanvas
 }
 
 const exportCover = async () => {
@@ -137,29 +203,33 @@ const exportCover = async () => {
   isExporting.value = true
 
   try {
-    // 导出横版 16:9 (1280x720)
-    const canvas169 = await exportSingleCover(1280, 720)
-    canvas169.toBlob((blob) => {
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.download = `cover-16x9-${Date.now()}.png`
-      link.href = url
-      link.click()
-      URL.revokeObjectURL(url)
-    }, 'image/png')
+    // 创建 zip 文件
+    const zip = new JSZip()
+    const timestamp = Date.now()
 
-    // 短暂延迟后导出竖版 9:16 (720x1280)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    const canvas916 = await exportSingleCover(720, 1280)
-    canvas916.toBlob((blob) => {
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.download = `cover-9x16-${Date.now()}.png`
-      link.href = url
-      link.click()
-      URL.revokeObjectURL(url)
-      isExporting.value = false
-    }, 'image/png')
+    // 导出横版 16:9 (1920x1080 - 真正的1080p)
+    const canvas169 = await exportSingleCover(1920, 1080)
+    const blob169 = await new Promise(resolve => canvas169.toBlob(resolve, 'image/png'))
+    zip.file(`cover-16x9-${timestamp}.png`, blob169)
+
+    // 短暂延迟后导出竖版 9:16 (1080x1920)
+    await new Promise(resolve => setTimeout(resolve, 200))
+    const canvas916 = await exportSingleCover(1080, 1920)
+    const blob916 = await new Promise(resolve => canvas916.toBlob(resolve, 'image/png'))
+    zip.file(`cover-9x16-${timestamp}.png`, blob916)
+
+    // 生成 zip 文件
+    const zipBlob = await zip.generateAsync({ type: 'blob' })
+
+    // 下载 zip 文件
+    const url = URL.createObjectURL(zipBlob)
+    const link = document.createElement('a')
+    link.download = `covers-${timestamp}.zip`
+    link.href = url
+    link.click()
+    URL.revokeObjectURL(url)
+
+    isExporting.value = false
   } catch (error) {
     console.error('导出失败:', error)
     alert('导出失败，请重试')
@@ -191,7 +261,7 @@ const exportCover = async () => {
           <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
           <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
         </svg>
-        {{ isExporting ? '导出中...' : '导出封面' }}
+        {{ isExporting ? '导出中...' : '导出 ZIP 包' }}
       </button>
     </header>
 

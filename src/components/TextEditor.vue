@@ -34,6 +34,16 @@ const customCSS = computed({
   set: (value) => coverStore.setCustomCSS(value),
 })
 
+const lineHeight = computed({
+  get: () => coverStore.lineHeight,
+  set: (value) => coverStore.setLineHeight(value),
+})
+
+const letterSpacing = computed({
+  get: () => coverStore.letterSpacing,
+  set: (value) => coverStore.setLetterSpacing(value),
+})
+
 const presetColors = [
   '#ffffff',
   '#000000',
@@ -167,6 +177,44 @@ const insertHighlight = () => {
               {{ option.label }}
             </option>
           </select>
+        </div>
+      </div>
+
+      <div class="style-row">
+        <label class="style-label">行高</label>
+        <div class="style-control">
+          <input
+            v-model.number="lineHeight"
+            type="range"
+            min="0"
+            max="3"
+            step="0.1"
+            class="range-input"
+          />
+          <input
+            v-model.number="lineHeight"
+            type="number"
+            min="0"
+            max="3"
+            step="0.1"
+            class="number-input"
+          />
+        </div>
+      </div>
+
+      <div class="style-row">
+        <label class="style-label">字间距</label>
+        <div class="style-control">
+          <select v-model="letterSpacing" class="select-input">
+            <option value="0">默认</option>
+            <option value="0.005em">0.5%</option>
+            <option value="0.01em">1%</option>
+            <option value="0.016em">1.6% (FCP)</option>
+            <option value="0.02em">2%</option>
+            <option value="0.05em">5%</option>
+            <option value="0.1em">10%</option>
+          </select>
+          <input v-model="letterSpacing" type="text" class="text-input-small" placeholder="如: 0.016em" />
         </div>
       </div>
     </div>

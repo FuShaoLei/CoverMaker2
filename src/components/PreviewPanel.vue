@@ -7,7 +7,27 @@ const coverStore = useCoverStore()
 
 const currentImage = computed(() => coverStore.currentImage)
 const text = computed(() => coverStore.text)
-const getAppliedStyles = computed(() => coverStore.getAppliedStyles())
+
+// 基准宽度（用于计算相对字体大小）
+const baseWidth = 1920
+
+// 横版预览的字体大小（增大3倍以便看清）
+const horizontalFontSize = computed(() => {
+  // 假设预览容器宽度约为 600px，计算比例并放大
+  const previewWidth = 600
+  const scaled = Math.round(coverStore.fontSize * (previewWidth / baseWidth) * 3)
+  return `${scaled}px`
+})
+
+// 竖版预览的字体大小（增大3倍以便看清）
+const verticalFontSize = computed(() => {
+  // 竖版导出是 1080px 宽，预览是 180px 宽
+  // 使用导出尺寸计算并放大
+  const exportWidth = 1080
+  const previewWidth = 180
+  const scaled = Math.round(coverStore.fontSize * (previewWidth / exportWidth) * 3)
+  return `${scaled}px`
+})
 
 // 获取预览容器的样式
 const getPreviewContainerStyle = (aspectRatio) => {
@@ -61,7 +81,7 @@ const hasMarkdown = computed(() => {
             v-if="text"
             class="cover-text"
             v-html="renderedHTML"
-            :style="getAppliedStyles"
+            :style="{ ...coverStore.getAppliedStylesObject(), fontSize: horizontalFontSize }"
           ></div>
         </div>
       </div>
@@ -84,7 +104,7 @@ const hasMarkdown = computed(() => {
               v-if="text"
               class="cover-text"
               v-html="renderedHTML"
-              :style="getAppliedStyles"
+              :style="{ ...coverStore.getAppliedStylesObject(), fontSize: verticalFontSize }"
             ></div>
           </div>
         </div>
@@ -231,12 +251,20 @@ const hasMarkdown = computed(() => {
   overflow-wrap: break-word;
   hyphens: auto;
   font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  line-height: 1.4;
   pointer-events: none;
   z-index: 10;
 }
 
-/* Markdown 渲染的元素样式 */
+/* Markdown 渲染的元素样式 - 强制所有元素使用自定义字体 */
+.cover-text :deep(*),
+.cover-text :deep(p),
+.cover-text :deep(mark),
+.cover-text :deep(strong),
+.cover-text :deep(em),
+.cover-text :deep(code) {
+  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+}
+
 .cover-text :deep(p) {
   margin: 0;
 }
@@ -249,10 +277,12 @@ const hasMarkdown = computed(() => {
 
 .cover-text :deep(strong) {
   font-weight: bold;
+  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
 }
 
 .cover-text :deep(em) {
   font-style: italic;
+  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
 }
 
 .cover-text :deep(br) {

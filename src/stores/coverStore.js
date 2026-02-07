@@ -29,6 +29,12 @@ export const useCoverStore = defineStore('cover', () => {
   // 字体阴影
   const textShadow = ref('none')
 
+  // 行高
+  const lineHeight = ref(1)
+
+  // 字间距
+  const letterSpacing = ref('0.016em')
+
   // 裁剪对话框显示状态
   const showCropper = ref(false)
 
@@ -82,6 +88,16 @@ export const useCoverStore = defineStore('cover', () => {
     textShadow.value = value
   }
 
+  // 更新行高
+  function setLineHeight(value) {
+    lineHeight.value = value
+  }
+
+  // 更新字间距
+  function setLetterSpacing(value) {
+    letterSpacing.value = value
+  }
+
   // 打开裁剪对话框
   function openCropper() {
     showCropper.value = true
@@ -99,8 +115,22 @@ export const useCoverStore = defineStore('cover', () => {
       color: ${textColor.value};
       font-weight: ${fontWeight.value};
       text-shadow: ${textShadow.value};
+      line-height: ${lineHeight.value};
+      letter-spacing: ${letterSpacing.value};
       ${customCSS.value}
     `
+  }
+
+  // 生成应用了所有样式的对象（用于 :style 绑定）
+  function getAppliedStylesObject() {
+    return {
+      fontSize: `${fontSize.value}px`,
+      color: textColor.value,
+      fontWeight: fontWeight.value,
+      textShadow: textShadow.value,
+      lineHeight: lineHeight.value,
+      letterSpacing: letterSpacing.value,
+    }
   }
 
   // 重置所有状态
@@ -112,6 +142,8 @@ export const useCoverStore = defineStore('cover', () => {
     textColor.value = '#ffffff'
     fontWeight.value = 'normal'
     textShadow.value = 'none'
+    lineHeight.value = 1
+    letterSpacing.value = '0.016em'
   }
 
   return {
@@ -124,6 +156,8 @@ export const useCoverStore = defineStore('cover', () => {
     textColor,
     fontWeight,
     textShadow,
+    lineHeight,
+    letterSpacing,
     showCropper,
     setOriginalImage,
     setCroppedImage,
@@ -134,9 +168,12 @@ export const useCoverStore = defineStore('cover', () => {
     setTextColor,
     setFontWeight,
     setTextShadow,
+    setLineHeight,
+    setLetterSpacing,
     openCropper,
     closeCropper,
     getAppliedStyles,
+    getAppliedStylesObject,
     reset,
   }
 })
