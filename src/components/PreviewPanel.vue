@@ -104,7 +104,7 @@ const hasMarkdown = computed(() => {
               v-if="text"
               class="cover-text"
               v-html="renderedHTML"
-              :style="{ ...coverStore.getAppliedStylesObject(), fontSize: verticalFontSize }"
+              :style="{ ...coverStore.getAppliedStylesObject()}"
             ></div>
           </div>
         </div>
