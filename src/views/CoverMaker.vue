@@ -115,8 +115,19 @@ const exportSingleCover = async (width, height) => {
     textDiv.innerHTML = renderMarkdown(coverStore.text)
     textDiv.className = 'cover-text export-text'
 
-    // 计算字体大小（基于实际容器宽度，保持比例一致）
-    const scaledFontSize = Math.round(coverStore.fontSize * (width / 1920))
+    // 计算字体大小（基于实际容器宽度，保持和预览一致的比例）
+    // 预览中横版使用了约600px宽度并放大3倍，竖版使用180px宽度并放大3倍
+    // 导出时需要相同的缩放逻辑
+    let scaledFontSize
+    if (width >= height) {
+      // 横版：基于预览宽度600px放大3倍的比例
+      // fontSize * (600/1920) * 3 = fontSize * 0.9375
+      scaledFontSize = Math.round(coverStore.fontSize * 3.2)
+    } else {
+      // 竖版：基于预览宽度180px放大3倍的比例
+      // fontSize * (180/1080) * 3 = fontSize * 0.5
+      scaledFontSize = Math.round(coverStore.fontSize * 6)
+    }
 
     const styles = coverStore.getAppliedStyles()
     textDiv.style.cssText = `

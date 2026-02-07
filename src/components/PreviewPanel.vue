@@ -94,7 +94,7 @@ const hasMarkdown = computed(() => {
         </h3>
         <div class="preview-group">
           <div
-            v-for="i in 3"
+            v-for="i in 1"
             :key="'vertical-' + i"
             class="preview-container small-preview"
             :style="getPreviewContainerStyle('9:16')"
