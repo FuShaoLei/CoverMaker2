@@ -19,4 +19,4 @@ git add .
 git commit -m 'update'
 
 # 强制推送到 master 分支
-git push -f --set-upstream origin master
+git push -f --set-upstream origin HEAD:gh-page
