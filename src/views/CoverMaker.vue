@@ -7,6 +7,7 @@ import TextEditor from '@/components/TextEditor.vue'
 import StyleEditor from '@/components/StyleEditor.vue'
 import PreviewPanel from '@/components/PreviewPanel.vue'
 import { useCoverStore } from '@/stores/coverStore'
+import { renderMarkdown } from '@/utils/markdown'
 import '@/assets/styles/cover.css'
 
 const coverStore = useCoverStore()
@@ -70,12 +71,8 @@ const exportSingleCover = async (width, height) => {
   // 创建文字容器
   if (coverStore.text) {
     const textDiv = document.createElement('div')
-    const isHTML = /<[^>]*>/.test(coverStore.text)
-    if (isHTML) {
-      textDiv.innerHTML = coverStore.text
-    } else {
-      textDiv.innerText = coverStore.text
-    }
+    // 使用 Markdown 渲染
+    textDiv.innerHTML = renderMarkdown(coverStore.text)
     textDiv.style.cssText = `
       position: absolute;
       top: 50%;
@@ -89,9 +86,18 @@ const exportSingleCover = async (width, height) => {
       hyphens: auto;
       font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
       line-height: 1.4;
-      white-space: pre-wrap;
       ${coverStore.getAppliedStyles()}
     `
+    // 添加 p 标签样式
+    const style = document.createElement('style')
+    style.textContent = `
+      .export-text p { margin: 0; }
+      .export-text mark { background: yellow; color: black; padding: 0 2px; }
+      .export-text strong { font-weight: bold; }
+      .export-text em { font-style: italic; }
+    `
+    textDiv.className = 'export-text'
+    container.appendChild(style)
     container.appendChild(textDiv)
   }
 

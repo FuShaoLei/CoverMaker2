@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useCoverStore } from '@/stores/coverStore'
+import { renderMarkdown, hasMarkdownSyntax } from '@/utils/markdown'
 
 const coverStore = useCoverStore()
 
@@ -17,9 +18,15 @@ const getPreviewContainerStyle = (aspectRatio) => {
   return styles[aspectRatio] || styles['16:9']
 }
 
-// 检测是否包含 HTML 标签
-const isHTML = computed(() => {
-  return /<[^>]*>/.test(text.value)
+// 渲染后的 HTML
+const renderedHTML = computed(() => {
+  if (!text.value) return ''
+  return renderMarkdown(text.value)
+})
+
+// 检测是否包含 Markdown 语法
+const hasMarkdown = computed(() => {
+  return hasMarkdownSyntax(text.value)
 })
 </script>
 
@@ -53,8 +60,7 @@ const isHTML = computed(() => {
           <div
             v-if="text"
             class="cover-text"
-            v-html="isHTML ? text : undefined"
-            v-text="isHTML ? undefined : text"
+            v-html="renderedHTML"
             :style="getAppliedStyles"
           ></div>
         </div>
@@ -77,8 +83,7 @@ const isHTML = computed(() => {
             <div
               v-if="text"
               class="cover-text"
-              v-html="isHTML ? text : undefined"
-              v-text="isHTML ? undefined : text"
+              v-html="renderedHTML"
               :style="getAppliedStyles"
             ></div>
           </div>
@@ -229,7 +234,31 @@ const isHTML = computed(() => {
   line-height: 1.4;
   pointer-events: none;
   z-index: 10;
-  white-space: pre-wrap;
+}
+
+/* Markdown 渲染的元素样式 */
+.cover-text :deep(p) {
+  margin: 0;
+}
+
+.cover-text :deep(mark) {
+  background: yellow;
+  color: black;
+  padding: 0 2px;
+}
+
+.cover-text :deep(strong) {
+  font-weight: bold;
+}
+
+.cover-text :deep(em) {
+  font-style: italic;
+}
+
+.cover-text :deep(br) {
+  content: '';
+  display: block;
+  margin: 0.2em 0;
 }
 
 /* 滚动条样式 */

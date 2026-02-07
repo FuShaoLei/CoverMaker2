@@ -60,16 +60,20 @@ const shadowPresets = [
   { label: '发光', value: '0 0 10px rgba(255,255,255,0.8)' },
 ]
 
-const insertHTML = (html) => {
-  text.value += html
+const insertMarkdown = (markdown) => {
+  text.value += markdown
 }
 
-const insertTag = (tag, content = '') => {
-  insertHTML(`<${tag}>${content || '文本'}</${tag}>`)
+const insertBold = () => {
+  insertMarkdown('****粗体文字****')
 }
 
-const insertBreak = () => {
-  insertHTML('<br>')
+const insertItalic = () => {
+  insertMarkdown('**斜体文字**')
+}
+
+const insertHighlight = () => {
+  insertMarkdown('==高亮文字==')
 }
 </script>
 
@@ -77,32 +81,28 @@ const insertBreak = () => {
   <div class="text-editor">
     <div class="editor-section">
       <h3 class="section-title">文字内容</h3>
-      <div class="html-toolbar">
-        <button class="tool-btn" @click="() => insertTag('b')" title="粗体">
+      <div class="markdown-toolbar">
+        <button class="tool-btn" @click="insertBold" title="粗体">
           <strong>B</strong>
         </button>
-        <button class="tool-btn" @click="() => insertTag('i')" title="斜体">
+        <button class="tool-btn" @click="insertItalic" title="斜体">
           <em>I</em>
         </button>
-        <button class="tool-btn" @click="() => insertTag('u')" title="下划线">
-          <u>U</u>
-        </button>
-        <button class="tool-btn" @click="insertBreak" title="换行">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-        </button>
-        <button class="tool-btn" @click="() => insertTag('span', '自定义文字')" title="自定义样式">
-          &lt;span&gt;
+        <button class="tool-btn" @click="insertHighlight" title="高亮">
+          <span style="background: yellow; color: black; padding: 0 4px;">H</span>
         </button>
       </div>
       <textarea
         v-model="text"
         class="text-input"
-        placeholder="输入文字内容... 支持 HTML 标签如 &lt;b&gt;粗体&lt;/b&gt;、&lt;br&gt;换行等"
+        placeholder="输入文字内容... 支持 Markdown 语法
+
+**粗体文字**
+==高亮文字--
+直接换行即可换行"
         rows="5"
       ></textarea>
-      <p class="hint">支持 HTML 标签，例如: &lt;b&gt;粗体&lt;/b&gt;、&lt;i&gt;斜体&lt;/i&gt;、&lt;br&gt;换行</p>
+      <p class="hint">支持 Markdown 语法，例如: **粗体**、==高亮==、直接换行换行</p>
     </div>
 
     <div class="editor-section">
@@ -204,7 +204,7 @@ const insertBreak = () => {
   color: #e2e8f0;
 }
 
-.html-toolbar {
+.markdown-toolbar {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
