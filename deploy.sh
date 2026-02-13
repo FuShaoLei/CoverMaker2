@@ -10,7 +10,7 @@ cd dist
 git init
 
 # 添加远程仓库
-git remote add origin git@github.com:FuShaoLei/CoverMaker.git
+git remote add origin git@github.com:FuShaoLei/CoverMaker2.git
 
 # 添加所有文件
 git add .
