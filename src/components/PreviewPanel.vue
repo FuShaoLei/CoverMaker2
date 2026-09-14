@@ -250,7 +250,7 @@ const hasMarkdown = computed(() => {
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: 'CustomFont', 'CustomCFont', sans-serif;
   pointer-events: none;
   z-index: 10;
 }
@@ -262,7 +262,7 @@ const hasMarkdown = computed(() => {
 .cover-text :deep(strong),
 .cover-text :deep(em),
 .cover-text :deep(code) {
-  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+  font-family: 'CustomFont', 'CustomCFont', sans-serif !important;
 }
 
 .cover-text :deep(p) {
@@ -277,12 +277,12 @@ const hasMarkdown = computed(() => {
 
 .cover-text :deep(strong) {
   font-weight: bold;
-  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+  font-family: 'CustomFont', 'CustomCFont', sans-serif !important;
 }
 
 .cover-text :deep(em) {
   font-style: italic;
-  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+  font-family: 'CustomFont', 'CustomCFont', sans-serif !important;
 }
 
 .cover-text :deep(br) {

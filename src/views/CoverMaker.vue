@@ -140,7 +140,7 @@ const exportSingleCover = async (width, height) => {
       max-width: 90%;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      font-family: 'CustomFont', 'CustomCFont', sans-serif;
       pointer-events: none;
       font-size: ${scaledFontSize}px;
       color: ${coverStore.textColor};
@@ -170,7 +170,7 @@ const exportSingleCover = async (width, height) => {
         font-display: swap;
       }
       .export-text, .export-text *, .export-text p, .export-text mark, .export-text strong, .export-text em, .export-text code {
-        font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+        font-family: 'CustomFont', 'CustomCFont', sans-serif !important;
       }
       .export-text p { margin: 0; }
       .export-text mark { background: yellow; color: black; padding: 0 2px; }

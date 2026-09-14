@@ -17,6 +17,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'CustomCFont';
+  src: url('/fonts/STSong.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CustomCFont';
+  src: url('/fonts/STSong.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* 封面文字基础样式 */
 .cover-text {
   position: absolute;
@@ -29,7 +45,7 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: 'CustomFont', 'CustomCFont', sans-serif;
   pointer-events: none;
 }
 
